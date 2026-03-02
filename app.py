@@ -12,7 +12,9 @@ def create_app(test_config=None):
     # Support Cloud Databases (Postgres) on Vercel, fallback to local SQLite
     basedir = os.path.abspath(os.path.dirname(__file__))
     db_path = os.path.join(basedir, 'instance', 'database.db')
-    database_url = os.environ.get('DATABASE_URL')
+    
+    # Vercel adds POSTGRES_URL or DATABASE_URL depending on the provider
+    database_url = os.environ.get('POSTGRES_URL') or os.environ.get('DATABASE_URL')
     
     if database_url:
         # Flask-SQLAlchemy requires postgresql:// instead of postgres://

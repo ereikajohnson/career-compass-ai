@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Career Recommendations{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-10 offset-md-1 text-center">
+        <h2 class="fw-bold text-primary mb-3">Your AI Career Recommendations</h2>
+        <p class="text-muted fs-5">
+            Based on our advanced cosine similarity algorithm, here are the top roles that match your skill profile.
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        {% if recommendations %}
+        {% for rec in recommendations %}
+        <div
+            class="card shadow-sm mb-4 border-0 border-start border-4 {% if rec.similarity_score > 75 %}border-success{% elif rec.similarity_score > 40 %}border-warning{% else %}border-danger{% endif %}">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h4 class="card-title fw-bold mb-1">{{ rec.job.title }}</h4>
+                        <span class="badge bg-secondary mb-2">{{ rec.job.industry }}</span>
+                    </div>
+                    <div class="text-end">
+                        <div
+                            class="fs-2 fw-bold {% if rec.similarity_score > 75 %}text-success{% elif rec.similarity_score > 40 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ rec.similarity_score }}%
+                        </div>
+                        <small class="text-muted text-uppercase fw-bold">Match Score</small>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <h6 class="fw-bold text-muted text-uppercase mb-2"><i
+                                class="bi bi-check-circle text-success me-2"></i>Required Skills</h6>
+                        <p class="mb-0">{{ rec.job.tech_skills }}</p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-muted text-uppercase mb-2"><i
+                                class="bi bi-exclamation-triangle text-warning me-2"></i>Skill Gap Learning Hub</h6>
+                        {% if rec.missing_skills_resources %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for item in rec.missing_skills_resources %}
+                            <div class="card border-0 shadow-sm bg-light">
+                                <div class="card-body p-3">
+                                    <h6 class="card-title fw-bold text-danger mb-2">
+                                        <i class="bi bi-x-circle me-1"></i> {{ item.skill|title }}
+                                    </h6>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a href="{{ item.resources.youtube }}" target="_blank"
+                                            class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-youtube"></i> YouTube
+                                        </a>
+                                        <a href="{{ item.resources.course }}" target="_blank"
+                                            class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-mortarboard-fill"></i> Free Course
+                                        </a>
+                                        <a href="{{ item.resources.docs }}" target="_blank"
+                                            class="btn btn-sm btn-outline-dark">
+                                            <i class="bi bi-book"></i> Docs
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted d-block mt-3">Access these resources to close your skill gap.</small>
+                        {% else %}
+                        <div class="alert alert-success py-2 mb-0">
+                            <i class="bi bi-check2-all me-1"></i> You have all the required core skills!
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if rec.job.description %}
+                <hr class="my-4">
+                <div class="bg-light p-3 rounded">
+                    <h6 class="fw-bold mb-2">Role Overview</h6>
+                    <p class="mb-0 small text-muted">{{ rec.job.description }}</p>
+                </div>
+                {% endif %}
+
+                <hr class="my-4">
+                <div class="d-flex flex-wrap gap-2 justify-content-end">
+                    <a href="{{ url_for('main.resume_analyzer', job_id=rec.job.id) }}"
+                        class="btn btn-outline-secondary shadow-sm">
+                        <i class="bi bi-file-earmark-pdf-fill me-1"></i> Analyze Resume
+                    </a>
+                    <a href="{{ url_for('main.roadmap', job_id=rec.job.id) }}" class="btn btn-primary shadow-sm">
+                        <i class="bi bi-map-fill me-1"></i> Generate Career Roadmap
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="text-center mt-5">
+            <a href="{{ url_for('main.profile') }}" class="btn btn-outline-primary shadow-sm px-4">
+                Update Profile for Better Matches
+            </a>
+        </div>
+
+        {% else %}
+        <div class="card shadow-sm border-0 py-5 text-center">
+            <div class="card-body">
+                <div class="display-1 text-muted mb-4">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h3 class="fw-bold">No High Matches Found</h3>
+                <p class="text-muted mb-4">
+                    We couldn't find any roles matching your current skill set. <br>
+                    Add more skills to your profile to get recommendations.
+                </p>
+                <a href="{{ url_for('main.profile') }}" class="btn btn-primary btn-lg shadow-sm px-5">
+                    Update Your Profile
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

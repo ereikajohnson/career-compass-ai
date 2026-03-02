@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container text-center mt-5 pt-5">
+    <h1 class="display-3 fw-bold text-dark mb-4">Discover Your True Career Potential</h1>
+    <p class="lead text-muted mb-5">AI-Powered Skill & Job Recommendation Engine tailored specifically to your unique
+        skill set.</p>
+
+    {% if not current_user.is_authenticated %}
+    <div class="d-flex justify-content-center gap-3">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-5 shadow-sm">Get Started</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg px-5 shadow-sm">Log In</a>
+    </div>
+    {% else %}
+    <div class="d-flex justify-content-center gap-3">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg px-5 shadow-sm">Go to Dashboard</a>
+    </div>
+    {% endif %}
+
+    <div class="row mt-5 pt-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold"><i class="text-primary fs-3 mb-3">🛠️</i><br>Build Profile</h5>
+                    <p class="text-muted">Input your technical & soft skills, and experiences into the system.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold"><i class="text-primary fs-3 mb-3">🤖</i><br>AI Analysis</h5>
+                    <p class="text-muted">Our AI calculates the Cosine Similarity against vast job demands.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold"><i class="text-primary fs-3 mb-3">🚀</i><br>Get Hired</h5>
+                    <p class="text-muted">Receive top job recommendations tailored exactly to your unique skills.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

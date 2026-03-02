@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body text-center p-5">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+                    style="width: 80px; height: 80px; font-size: 2rem;">
+                    {{ current_user.username[:1] | upper }}
+                </div>
+                <h4 class="fw-bold">{{ current_user.username }}</h4>
+                <p class="text-muted">{{ current_user.industry or 'Industry not set' }}</p>
+
+                <hr>
+
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('main.profile') }}" class="btn btn-outline-primary fw-bold">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                <h5 class="fw-bold mb-0">Your Career Profile</h5>
+            </div>
+            <div class="card-body p-4">
+
+                <div class="mb-4">
+                    <h6 class="text-muted text-uppercase fw-bold small">Technical Skills</h6>
+                    <p class="fs-5">
+                        {% if current_user.tech_skills %}
+                            {% for skill in current_user.tech_skills.split(',') %}
+                                <span class="badge bg-secondary mb-1">{{ skill.strip() }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-muted fst-italic">No technical skills added yet.</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="text-muted text-uppercase fw-bold small">Soft Skills</h6>
+                    <p class="fs-5">
+                        {% if current_user.soft_skills %}
+                            {{ current_user.soft_skills }}
+                        {% else %}
+                            <span class="text-muted fst-italic">No soft skills added yet.</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <h6 class="text-muted text-uppercase fw-bold small">Highest Qualification</h6>
+                        <p class="fs-5 fw-medium">{{ current_user.qualification or 'Not specified' }}</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- NEW RECOMMENDATION SECTION -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                <h5 class="fw-bold mb-0">Recommended Careers</h5>
+            </div>
+            <div class="card-body p-4">
+
+                {% if recommendations %}
+                    <ul class="list-group list-group-flush">
+                        {% for career in recommendations %}
+                            <li class="list-group-item fs-5">
+                                {{ career }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted fst-italic">
+                        No recommendations available yet.
+                    </p>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

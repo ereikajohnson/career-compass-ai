@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-4 mt-4">
+            <div class="card-header bg-white border-bottom pt-4 pb-3">
+                <h3 class="fw-bold mb-0 text-center">Update Your Profile</h3>
+                <p class="text-muted text-center mb-0 mt-2">Provide your skills and background to get the best job
+                    recommendations.</p>
+            </div>
+            <div class="card-body p-5">
+                <form method="POST" action="">
+                    <!-- Technical Skills -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Technical Skills <span class="text-danger">*</span></label>
+                        <p class="small text-muted mb-2">Select your technical skills from the predefined list.</p>
+
+                        <div class="row">
+                            <!-- Popular tech skills -->
+                            {% set tech_options = ['Python', 'Java', 'SQL', 'JavaScript', 'HTML', 'CSS', 'React',
+                            'Node.js', 'Machine Learning', 'TensorFlow', 'Pandas', 'AWS', 'Linux', 'Docker',
+                            'Kubernetes', 'C++', 'C#'] %}
+                            {% set user_tech = current_user.tech_skills.split(',') if current_user.tech_skills else []
+                            %}
+                            {% set user_tech_lower = [] %}
+                            {% for ut in user_tech %}
+                            {% set _ = user_tech_lower.append(ut.strip() | lower) %}
+                            {% endfor %}
+
+                            {% for skill in tech_options %}
+                            <div class="col-md-4 col-sm-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="tech_skills"
+                                        value="{{ skill }}" id="skill_{{ loop.index }}" {% if skill.lower() in
+                                        user_tech_lower %} checked {% endif %}>
+                                    <label class="form-check-label" for="skill_{{ loop.index }}">
+                                        {{ skill }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Soft Skills -->
+                    <div class="mb-4">
+                        <label for="soft_skills" class="form-label fw-bold">Soft Skills</label>
+                        <input type="text" class="form-control" id="soft_skills" name="soft_skills"
+                            value="{{ current_user.soft_skills or '' }}"
+                            placeholder="e.g., Problem Solving, Leadership, Communication">
+                    </div>
+
+                    <!-- Qualification & Industry -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="qualification" class="form-label fw-bold">Highest Qualification</label>
+                            <select class="form-select" id="qualification" name="qualification">
+                                <option value="" disabled {% if not current_user.qualification %}selected{% endif %}>
+                                    Select Level</option>
+                                <option value="High School" {% if current_user.qualification=='High School' %}selected{%
+                                    endif %}>High School</option>
+                                <option value="Diploma" {% if current_user.qualification=='Diploma' %}selected{% endif
+                                    %}>Diploma</option>
+                                <option value="Bachelors" {% if current_user.qualification=='Bachelors' %}selected{%
+                                    endif %}>Bachelor's Degree</option>
+                                <option value="Masters" {% if current_user.qualification=='Masters' %}selected{% endif
+                                    %}>Master's Degree</option>
+                                <option value="PhD" {% if current_user.qualification=='PhD' %}selected{% endif %}>PhD
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <label for="industry" class="form-label fw-bold">Preferred Industry Domain</label>
+                            <select class="form-select" id="industry" name="industry">
+                                <option value="" disabled {% if not current_user.industry %}selected{% endif %}>Select
+                                    Industry</option>
+                                <option value="IT" {% if current_user.industry=='IT' %}selected{% endif %}>Information
+                                    Technology</option>
+                                <option value="Data" {% if current_user.industry=='Data' %}selected{% endif %}>Data &
+                                    Analytics</option>
+                                <option value="Design" {% if current_user.industry=='Design' %}selected{% endif %}>
+                                    Design & Creative</option>
+                                <option value="Business" {% if current_user.industry=='Business' %}selected{% endif %}>
+                                    Business & Management</option>
+                                <option value="Security" {% if current_user.industry=='Security' %}selected{% endif %}>
+                                    Cybersecurity</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">Save Profile
+                            Updates</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

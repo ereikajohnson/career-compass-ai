@@ -1,10 +1,6 @@
 import os
 from flask import Flask
 from careercompass.extensions import db, login_manager, bcrypt
-from careercompass.models.user import User
-from careercompass.routes.auth_routes import auth_bp
-from careercompass.routes.main_routes import main_bp
-from careercompass.routes.admin_routes import admin_bp
 
 
 def create_app(test_config=None):
@@ -12,7 +8,11 @@ def create_app(test_config=None):
 
     # App Configuration
     app.config['SECRET_KEY'] = 'dev_secret_key_careercompass'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+    
+    # Use absolute path for SQLite to work correctly on Vercel
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    db_path = os.path.join(basedir, 'instance', 'database.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     if test_config:
@@ -24,21 +24,30 @@ def create_app(test_config=None):
     bcrypt.init_app(app)
 
     # Register Blueprints
+    from careercompass.routes.auth_routes import auth_bp
+    from careercompass.routes import main_bp
+    from careercompass.routes.admin_routes import admin_bp
+    
     app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(main_bp)   # ← Removed url_prefix='/'
+    app.register_blueprint(main_bp)
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
     # User Loader
     @login_manager.user_loader
     def load_user(user_id):
+        from careercompass.models.user import User
         return User.query.get(int(user_id))
 
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+        except Exception as e:
+            print(f"Database setup skipped or failed: {e}")
 
     return app
 
 
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
     app.run(debug=True)

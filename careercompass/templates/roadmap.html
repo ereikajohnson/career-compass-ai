@@ -8,7 +8,7 @@
         <p class="text-muted fs-5">
             Follow this structured plan to acquire the necessary skills for this role.
             <br>
-            <span class="badge bg-info text-dark mt-2">{{ roadmap['Estimated Timeline'] }}</span>
+            <span class="badge bg-info text-dark mt-2">{{ roadmap.get('Estimated Timeline', '12 Weeks') }}</span>
         </p>
     </div>
 </div>
@@ -16,18 +16,18 @@
 <div class="row">
     <div class="col-md-8 offset-md-2">
         <!-- Phase 1 -->
+        {% set p1 = roadmap.get('Phase 1: Foundation Skills', {}) %}
         <div class="card shadow-sm border-0 border-start border-4 border-primary mb-4">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="card-title fw-bold mb-0 text-primary">
                         <i class="bi bi-1-circle-fill me-2"></i> Phase 1: Foundation
                     </h4>
-                    <span class="badge bg-light text-dark border">{{ roadmap['Phase 1: Foundation Skills']['duration']
-                        }}</span>
+                    <span class="badge bg-body-tertiary text-muted border">{{ p1.get('duration', 'Weeks 1-4') }}</span>
                 </div>
-                <p class="text-muted">{{ roadmap['Phase 1: Foundation Skills']['description'] }}</p>
+                <p class="text-muted">{{ p1.get('description', '') }}</p>
                 <div class="d-flex flex-wrap gap-2 mt-3">
-                    {% for skill in roadmap['Phase 1: Foundation Skills']['skills'] %}
+                    {% for skill in p1.get('skills', []) %}
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">{{ skill
                         }}</span>
                     {% endfor %}
@@ -36,18 +36,18 @@
         </div>
 
         <!-- Phase 2 -->
+        {% set p2 = roadmap.get('Phase 2: Intermediate Skills', {}) %}
         <div class="card shadow-sm border-0 border-start border-4 border-warning mb-4">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="card-title fw-bold mb-0 text-warning">
                         <i class="bi bi-2-circle-fill me-2"></i> Phase 2: Intermediate
                     </h4>
-                    <span class="badge bg-light text-dark border">{{ roadmap['Phase 2: Intermediate Skills']['duration']
-                        }}</span>
+                    <span class="badge bg-body-tertiary text-muted border">{{ p2.get('duration', 'Weeks 5-8') }}</span>
                 </div>
-                <p class="text-muted">{{ roadmap['Phase 2: Intermediate Skills']['description'] }}</p>
+                <p class="text-muted">{{ p2.get('description', '') }}</p>
                 <div class="d-flex flex-wrap gap-2 mt-3">
-                    {% for skill in roadmap['Phase 2: Intermediate Skills']['skills'] %}
+                    {% for skill in p2.get('skills', []) %}
                     <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">{{ skill
                         }}</span>
                     {% endfor %}
@@ -56,18 +56,18 @@
         </div>
 
         <!-- Phase 3 -->
+        {% set p3 = roadmap.get('Phase 3: Advanced Skills', {}) %}
         <div class="card shadow-sm border-0 border-start border-4 border-success mb-4">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="card-title fw-bold mb-0 text-success">
                         <i class="bi bi-3-circle-fill me-2"></i> Phase 3: Advanced
                     </h4>
-                    <span class="badge bg-light text-dark border">{{ roadmap['Phase 3: Advanced Skills']['duration']
-                        }}</span>
+                    <span class="badge bg-body-tertiary text-muted border">{{ p3.get('duration', 'Weeks 9-12') }}</span>
                 </div>
-                <p class="text-muted">{{ roadmap['Phase 3: Advanced Skills']['description'] }}</p>
+                <p class="text-muted">{{ p3.get('description', '') }}</p>
                 <div class="d-flex flex-wrap gap-2 mt-3">
-                    {% for skill in roadmap['Phase 3: Advanced Skills']['skills'] %}
+                    {% for skill in p3.get('skills', []) %}
                     <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">{{ skill
                         }}</span>
                     {% endfor %}
@@ -78,11 +78,11 @@
         <div class="row">
             <!-- Suggested Projects -->
             <div class="col-md-6 mb-4">
-                <div class="card shadow-sm border-0 h-100 bg-light">
+                <div class="card shadow-sm border border-primary-subtle h-100 bg-body-tertiary">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-3"><i class="bi bi-laptop me-2"></i> Suggested Projects</h5>
                         <ul class="list-group list-group-flush bg-transparent">
-                            {% for project in roadmap['Suggested Projects'] %}
+                            {% for project in roadmap.get('Suggested Projects', []) %}
                             <li class="list-group-item bg-transparent px-0 border-bottom-0"><i
                                     class="bi bi-check2 text-primary me-2"></i>{{ project }}</li>
                             {% endfor %}
@@ -93,11 +93,11 @@
 
             <!-- Certifications -->
             <div class="col-md-6 mb-4">
-                <div class="card shadow-sm border-0 h-100 bg-light">
+                <div class="card shadow-sm border border-warning-subtle h-100 bg-body-tertiary">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-3"><i class="bi bi-award me-2"></i> Certifications</h5>
                         <ul class="list-group list-group-flush bg-transparent">
-                            {% for cert in roadmap['Certifications'] %}
+                            {% for cert in roadmap.get('Certifications', []) %}
                             <li class="list-group-item bg-transparent px-0 border-bottom-0"><i
                                     class="bi bi-star-fill text-warning me-2"></i>{{ cert }}</li>
                             {% endfor %}

@@ -16,19 +16,25 @@ def admin_dashboard():
 @login_required
 def add_job():
     title = request.form.get('title')
+    company = request.form.get('company')
     tech_skills = request.form.get('tech_skills')
     soft_skills = request.form.get('soft_skills')
     min_qualification = request.form.get('min_qualification')
     description = request.form.get('description')
     industry = request.form.get('industry')
+    availability = request.form.get('availability')
+    salary_package = request.form.get('salary_package')
     
     new_job = Job(
         title=title,
+        company=company,
         tech_skills=tech_skills,
         soft_skills=soft_skills,
         min_qualification=min_qualification,
         description=description,
-        industry=industry
+        industry=industry,
+        availability=availability,
+        salary_package=salary_package
     )
     
     db.session.add(new_job)
@@ -51,11 +57,14 @@ def edit_job(job_id):
     job = Job.query.get_or_404(job_id)
     
     job.title = request.form.get('title')
+    job.company = request.form.get('company')
     job.tech_skills = request.form.get('tech_skills')
     job.soft_skills = request.form.get('soft_skills')
     job.min_qualification = request.form.get('min_qualification')
     job.description = request.form.get('description')
     job.industry = request.form.get('industry')
+    job.availability = request.form.get('availability')
+    job.salary_package = request.form.get('salary_package')
     
     db.session.commit()
     flash('Job updated successfully.', 'success')

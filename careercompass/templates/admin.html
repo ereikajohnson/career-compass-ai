@@ -44,7 +44,7 @@
                         </td>
                     </tr>
 
-                    
+
                     <div class="modal fade" id="editJobModal{{ job.id }}" tabindex="-1">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
@@ -55,12 +55,17 @@
                                 <div class="modal-body text-start">
                                     <form action="{{ url_for('admin.edit_job', job_id=job.id) }}" method="POST">
                                         <div class="row">
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <label class="form-label">Job Title</label>
                                                 <input type="text" name="title" class="form-control"
                                                     value="{{ job.title }}" required>
                                             </div>
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">Company</label>
+                                                <input type="text" name="company" class="form-control"
+                                                    value="{{ job.company or '' }}" placeholder="e.g. Google">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
                                                 <label class="form-label">Industry</label>
                                                 <input type="text" name="industry" class="form-control"
                                                     value="{{ job.industry }}">
@@ -89,6 +94,19 @@
                                             <label class="form-label">Description</label>
                                             <textarea name="description" class="form-control"
                                                 rows="3">{{ job.description }}</textarea>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Availability</label>
+                                                <input type="text" name="availability" class="form-control"
+                                                    value="{{ job.availability }}" placeholder="e.g. Remote, Full-time">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Salary Package</label>
+                                                <input type="text" name="salary_package" class="form-control"
+                                                    value="{{ job.salary_package }}" placeholder="e.g. ₹12 - ₹18 LPA">
+                                            </div>
                                         </div>
 
                                         <div class="text-end">
@@ -124,12 +142,16 @@
             <div class="modal-body">
                 <form action="{{ url_for('admin.add_job') }}" method="POST">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label class="form-label">Job Title *</label>
                             <input type="text" name="title" class="form-control" required
                                 placeholder="e.g. Software Engineer">
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Company</label>
+                            <input type="text" name="company" class="form-control" placeholder="e.g. Microsoft">
+                        </div>
+                        <div class="col-md-4 mb-3">
                             <label class="form-label">Industry</label>
                             <input type="text" name="industry" class="form-control" placeholder="e.g. Technology">
                         </div>
@@ -157,6 +179,19 @@
                         <label class="form-label">Description</label>
                         <textarea name="description" class="form-control" rows="3"
                             placeholder="Brief job description..."></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Availability</label>
+                            <input type="text" name="availability" class="form-control"
+                                placeholder="e.g. Remote, Full-time">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Salary Package</label>
+                            <input type="text" name="salary_package" class="form-control"
+                                placeholder="e.g. ₹15 - ₹25 LPA">
+                        </div>
                     </div>
 
                     <div class="text-end">

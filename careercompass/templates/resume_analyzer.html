@@ -3,17 +3,75 @@
 
 {% block content %}
 <div class="row mb-4">
+    <div class="col-md-10 offset-md-1">
+        <div class="card shadow-sm border-0 bg-body-tertiary rounded-4 mb-4">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
+                        <i class="bi bi-person-badge fs-2"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">{{ current_user.full_name or current_user.username }}</h5>
+                        <p class="text-muted small mb-0"><i class="bi bi-mortarboard me-1"></i>{{
+                            current_user.qualification or 'Qualification not set' }}</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    {% if current_user.tech_skills %}
+                    {% for skill in current_user.tech_skills.split(',')[:3] %}
+                    <span
+                        class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-3 py-2 rounded-pill small">{{
+                        skill.strip() }}</span>
+                    {% endfor %}
+                    {% if current_user.tech_skills.split(',')|length > 3 %}
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill small">+{{
+                        current_user.tech_skills.split(',')|length - 3 }} more</span>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('main.profile') }}" class="btn btn-sm btn-outline-primary px-4 rounded-pill">Edit
+                    Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
     <div class="col-md-10 offset-md-1 text-center">
         <h2 class="fw-bold text-primary mb-3">AI Resume Analyzer</h2>
+        <div class="card shadow-sm mb-4 border-0 bg-primary bg-opacity-10 py-3 rounded-4">
+            <div class="card-body py-2">
+                <h4 class="fw-bold mb-1">{{ job.title }}</h4>
+                {% if job.company %}
+                <p class="text-primary fw-bold mb-2 h6"><i class="bi bi-building me-1"></i>{{ job.company }}</p>
+                {% endif %}
+                <div class="d-flex justify-content-center flex-wrap gap-3 mt-2">
+                    {% if job.availability %}
+                    <span class="badge bg-white text-dark shadow-sm px-3 py-2">
+                        <i class="bi bi-clock-history me-1 text-primary"></i>{{ job.availability }}
+                    </span>
+                    {% endif %}
+                    {% if job.salary_package %}
+                    <span class="badge bg-white text-dark shadow-sm px-3 py-2">
+                        <i class="bi bi-cash-stack me-1 text-success"></i>{{ job.salary_package }}
+                    </span>
+                    {% endif %}
+                    <span class="badge bg-white text-dark shadow-sm px-3 py-2">
+                        <i class="bi bi-mortarboard me-1 text-info"></i>{{ job.min_qualification }}
+                    </span>
+                </div>
+            </div>
+        </div>
         <p class="text-muted fs-5">
-            Upload your resume to see how well you match the <strong>{{ job.title }}</strong> role.
+            Upload your resume to see how well you match this role at <strong>{{ job.company or 'the target company'
+                }}</strong>.
         </p>
     </div>
 </div>
 
 <div class="row">
     <div class="col-md-8 offset-md-2">
-        <!-- Upload Form -->
+
         <div class="card shadow-sm border-0 mb-5">
             <div class="card-body p-4 text-center">
                 <i class="bi bi-cloud-arrow-up text-primary display-4 mb-3 d-block"></i>
@@ -30,7 +88,7 @@
             </div>
         </div>
 
-        <!-- Analysis Results -->
+
         {% if analysis_result %}
         <div class="card shadow-sm border-0 border-start border-4 mb-4
             {% if analysis_result.match_percentage >= 80 %}border-success
@@ -68,10 +126,10 @@
                 </div>
 
                 <div class="row mt-4">
-                    <!-- Strengths -->
-                    <div class="col-md-6 mb-4 mb-md-0">
+                    <!-- Strengths (Technical) -->
+                    <div class="col-md-4 mb-4 mb-md-0">
                         <h6 class="fw-bold text-muted text-uppercase mb-3">
-                            <i class="bi bi-check-circle text-success me-2"></i>Matched Skills (Strengths)
+                            <i class="bi bi-check-circle text-success me-2"></i>Matched Tech Skills
                         </h6>
                         {% if analysis_result.strengths %}
                         <div class="d-flex flex-wrap gap-2">
@@ -82,12 +140,12 @@
                             {% endfor %}
                         </div>
                         {% else %}
-                        <p class="text-muted small">No exact skill matches found from the job requirements.</p>
+                        <p class="text-muted small">No exact tech skill matches found.</p>
                         {% endif %}
                     </div>
 
-                    <!-- Missing -->
-                    <div class="col-md-6">
+                    <!-- Missing Skills -->
+                    <div class="col-md-4 mb-4 mb-md-0">
                         <h6 class="fw-bold text-muted text-uppercase mb-3">
                             <i class="bi bi-exclamation-triangle text-warning me-2"></i>Missing Skills (Gap)
                         </h6>
@@ -101,8 +159,26 @@
                         </div>
                         {% else %}
                         <div class="alert alert-success py-2 mb-0">
-                            <i class="bi bi-check2-all me-1"></i> Outstanding! No core skills missing.
+                            <i class="bi bi-check2-all me-1"></i> No missing skills!
                         </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Soft Skills -->
+                    <div class="col-md-4">
+                        <h6 class="fw-bold text-muted text-uppercase mb-3">
+                            <i class="bi bi-person-check text-info me-2"></i>Soft Skills (Detected)
+                        </h6>
+                        {% if analysis_result.soft_skills %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for skill in analysis_result.soft_skills %}
+                            <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2">
+                                <i class="bi bi-patch-check me-1"></i>{{ skill }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small">No soft skill matches found in resume.</p>
                         {% endif %}
                     </div>
                 </div>

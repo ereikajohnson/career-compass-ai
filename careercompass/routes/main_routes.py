@@ -1,11 +1,27 @@
-from flask import render_template, request, redirect, url_for, flash
+import os
+import secrets
+from datetime import datetime
+from flask import render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
-from careercompass.models import Job
+from careercompass.models import Job, User
 from careercompass.extensions import db
 from careercompass.recommendation_engine import recommend_jobs
 from . import main_bp
 
 
+def save_profile_picture(form_picture):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+    
+    # Save to the actual static folder configured in the app
+    picture_path = os.path.join(current_app.static_folder, 'profile_pics', picture_fn)
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(picture_path), exist_ok=True)
+    
+    form_picture.save(picture_path)
+    return picture_fn
 
 @main_bp.route('/')
 def home():
@@ -16,7 +32,18 @@ def home():
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    from careercompass.recommendation_engine import get_skill_opportunities
+    
+    skill_ops = []
+    if current_user.tech_skills:
+        skills = [s.strip() for s in current_user.tech_skills.split(',') if s.strip()]
+        for s in skills[:4]: # Limit to top 4 for dashboard
+            skill_ops.append({
+                "skill": s,
+                "opportunities": get_skill_opportunities(s)
+            })
+            
+    return render_template('dashboard.html', skill_opportunities=skill_ops)
 
 
 
@@ -24,10 +51,57 @@ def dashboard():
 @login_required
 def profile():
     if request.method == 'POST':
+        new_username = request.form.get('username')
+        full_name = request.form.get('full_name')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        address = request.form.get('address')
+        dob_str = request.form.get('dob')
+        gender = request.form.get('gender')
+        
+        # Social links
+        linkedin = request.form.get('linkedin')
+        github = request.form.get('github')
+        twitter = request.form.get('twitter')
+        website = request.form.get('website')
+        
         tech_skills = request.form.getlist('tech_skills')
         soft_skills = request.form.get('soft_skills')
         qualification = request.form.get('qualification')
         industry = request.form.get('industry')
+
+        # Handle Profile Picture
+        if 'profile_pic' in request.files:
+            file = request.files['profile_pic']
+            if file and file.filename != '':
+                picture_file = save_profile_picture(file)
+                current_user.profile_pic = picture_file
+
+        # Username update logic
+        if new_username and new_username != current_user.username:
+            user_exists = User.query.filter_by(username=new_username).first()
+            if user_exists:
+                flash('Username already taken. Please choose another.', 'danger')
+                return redirect(url_for('main.profile'))
+            current_user.username = new_username
+
+        current_user.full_name = full_name
+        current_user.email = email
+        current_user.phone = phone
+        current_user.address = address
+        current_user.gender = gender
+        
+        # Update socials
+        current_user.linkedin = linkedin
+        current_user.github = github
+        current_user.twitter = twitter
+        current_user.website = website
+        
+        if dob_str:
+            try:
+                current_user.dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+            except ValueError:
+                pass
 
         current_user.tech_skills = ",".join(tech_skills) if tech_skills else ""
         current_user.soft_skills = soft_skills
@@ -94,7 +168,7 @@ def resume_analyzer(job_id):
         if file and file.filename.endswith('.pdf'):
             from careercompass.recommendation_engine import extract_text_from_pdf, analyze_resume
             resume_text = extract_text_from_pdf(file)
-            analysis_result = analyze_resume(resume_text, job.tech_skills)
+            analysis_result = analyze_resume(resume_text, job.tech_skills, job.soft_skills)
             flash('Resume analyzed successfully!', 'success')
         else:
             flash('Invalid file format. Please upload a PDF file.', 'danger')

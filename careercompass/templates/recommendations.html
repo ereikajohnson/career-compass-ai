@@ -2,6 +2,40 @@
 {% block title %}Career Recommendations{% endblock %}
 
 {% block content %}
+<div class="row mb-5">
+    <div class="col-md-10 offset-md-1">
+        <div class="card shadow-sm border-0 bg-body-tertiary rounded-4">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
+                        <i class="bi bi-person-badge fs-2"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">{{ current_user.full_name or current_user.username }}</h5>
+                        <p class="text-muted small mb-0"><i class="bi bi-mortarboard me-1"></i>{{
+                            current_user.qualification or 'Qualification not set' }}</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    {% if current_user.tech_skills %}
+                    {% for skill in current_user.tech_skills.split(',')[:3] %}
+                    <span
+                        class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-3 py-2 rounded-pill small">{{
+                        skill.strip() }}</span>
+                    {% endfor %}
+                    {% if current_user.tech_skills.split(',')|length > 3 %}
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill small">+{{
+                        current_user.tech_skills.split(',')|length - 3 }} more</span>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('main.profile') }}" class="btn btn-sm btn-outline-primary px-4 rounded-pill">Edit
+                    Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row mb-4">
     <div class="col-md-10 offset-md-1 text-center">
         <h2 class="fw-bold text-primary mb-3">Your AI Career Recommendations</h2>
@@ -21,6 +55,9 @@
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <h4 class="card-title fw-bold mb-1">{{ rec.job.title }}</h4>
+                        {% if rec.job.company %}
+                        <h6 class="text-primary mb-2"><i class="bi bi-building me-1"></i>{{ rec.job.company }}</h6>
+                        {% endif %}
                         <span class="badge bg-secondary mb-2">{{ rec.job.industry }}</span>
                     </div>
                     <div class="text-end">
@@ -32,24 +69,73 @@
                     </div>
                 </div>
 
+                <div class="d-flex flex-wrap gap-3 mb-3">
+                    {% if rec.job.availability %}
+                    <span class="text-muted small"><i class="bi bi-clock-history me-1 text-primary"></i>{{
+                        rec.job.availability }}</span>
+                    {% endif %}
+                    {% if rec.job.salary_package %}
+                    <span class="text-muted small"><i class="bi bi-cash-stack me-1 text-success"></i>{{
+                        rec.job.salary_package }}</span>
+                    {% endif %}
+                    <span class="text-muted small"><i class="bi bi-mortarboard me-1 text-info"></i>{{
+                        rec.job.min_qualification }}</span>
+                </div>
+
                 <div class="row mt-4">
-                    <div class="col-md-6 mb-3 mb-md-0">
-                        <h6 class="fw-bold text-muted text-uppercase mb-2"><i
-                                class="bi bi-check-circle text-success me-2"></i>Required Skills</h6>
-                        <p class="mb-0">{{ rec.job.tech_skills }}</p>
+                    <!-- Matched Tech Skills & Opportunities -->
+                    <div class="col-md-6 mb-4">
+                        <h6 class="fw-bold text-muted text-uppercase mb-3"><i
+                                class="bi bi-check-circle text-success me-2"></i>Matched Skills & Opportunities</h6>
+                        <div class="d-flex flex-column gap-3">
+                            {% for item in rec.user_skills_opportunities %}
+                            {% if item.skill in rec.job.tech_skills.lower() %}
+                            <div class="card border-0 shadow-none bg-success bg-opacity-10 rounded-3">
+                                <div class="card-body p-3">
+                                    <h6 class="fw-bold text-success mb-2">{{ item.skill|title }}</h6>
+                                    <div class="small">
+                                        <p class="text-muted mb-1 fw-bold">Top Hiring Companies:</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% for op in item.opportunities %}
+                                            <span class="badge bg-white text-dark border shadow-sm">
+                                                <i class="bi bi-building me-1"></i>{{ op.company }}
+                                                <span class="text-success ms-1">{{ op.salary }}</span>
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
                     </div>
 
+                    <!-- Missing Skills & Career Growth -->
                     <div class="col-md-6">
-                        <h6 class="fw-bold text-muted text-uppercase mb-2"><i
-                                class="bi bi-exclamation-triangle text-warning me-2"></i>Skill Gap Learning Hub</h6>
+                        <h6 class="fw-bold text-muted text-uppercase mb-3"><i
+                                class="bi bi-graph-up-arrow text-primary me-2"></i>Skill Gap & Career Growth</h6>
                         {% if rec.missing_skills_resources %}
                         <div class="d-flex flex-column gap-3">
                             {% for item in rec.missing_skills_resources %}
-                            <div class="card border-0 shadow-sm bg-light">
+                            <div class="card border border-primary-subtle shadow-none bg-body-tertiary">
                                 <div class="card-body p-3">
                                     <h6 class="card-title fw-bold text-danger mb-2">
                                         <i class="bi bi-x-circle me-1"></i> {{ item.skill|title }}
                                     </h6>
+
+                                    <!-- Opportunities for missing skill -->
+                                    <div class="mb-3">
+                                        <p class="text-muted small mb-2 fw-bold">Unlock Roles at:</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% for op in item.opportunities %}
+                                            <span class="badge bg-white text-dark shadow-sm border small">
+                                                {{ op.company }} <span class="text-success ms-1">{{ op.salary }}</span>
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
                                     <div class="d-flex flex-wrap gap-2">
                                         <a href="{{ item.resources.youtube }}" target="_blank"
                                             class="btn btn-sm btn-outline-danger">
@@ -57,10 +143,10 @@
                                         </a>
                                         <a href="{{ item.resources.course }}" target="_blank"
                                             class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-mortarboard-fill"></i> Free Course
+                                            <i class="bi bi-mortarboard-fill"></i> Course
                                         </a>
                                         <a href="{{ item.resources.docs }}" target="_blank"
-                                            class="btn btn-sm btn-outline-dark">
+                                            class="btn btn-sm btn-outline-secondary">
                                             <i class="bi bi-book"></i> Docs
                                         </a>
                                     </div>
@@ -68,10 +154,12 @@
                             </div>
                             {% endfor %}
                         </div>
-                        <small class="text-muted d-block mt-3">Access these resources to close your skill gap.</small>
+                        <small class="text-muted d-block mt-3">Closing these gaps unlocks high-paying roles at top
+                            companies.</small>
                         {% else %}
-                        <div class="alert alert-success py-2 mb-0">
-                            <i class="bi bi-check2-all me-1"></i> You have all the required core skills!
+                        <div class="alert alert-success py-3 mb-0">
+                            <i class="bi bi-patch-check-fill me-2 fs-5"></i> You have matched all core requirements for
+                            this role!
                         </div>
                         {% endif %}
                     </div>
@@ -79,7 +167,7 @@
 
                 {% if rec.job.description %}
                 <hr class="my-4">
-                <div class="bg-light p-3 rounded">
+                <div class="bg-body-tertiary border p-3 rounded-3">
                     <h6 class="fw-bold mb-2">Role Overview</h6>
                     <p class="mb-0 small text-muted">{{ rec.job.description }}</p>
                 </div>

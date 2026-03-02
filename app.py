@@ -7,18 +7,19 @@ def create_app(test_config=None):
     app = Flask(__name__, template_folder='careercompass/templates', static_folder='careercompass/static')
 
     # App Configuration
-    app.config['SECRET_KEY'] = 'dev_secret_key_careercompass'
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev_secret_key_careercompass')
     
     # Support Cloud Databases (Postgres) on Vercel, fallback to local SQLite
     basedir = os.path.abspath(os.path.dirname(__file__))
     db_path = os.path.join(basedir, 'instance', 'database.db')
     
-    # Vercel adds multiple possible variables depending on the integration type
+    # Vercel adds multiple variables depending on the provider.
+    # Non-pooling URLs are more robust for initial schema setup (db.create_all).
     database_url = (
-        os.environ.get('POSTGRES_URL') or 
         os.environ.get('POSTGRES_URL_NON_POOLING') or 
         os.environ.get('DATABASE_URL') or
-        os.environ.get('SUPABASE_POSTGRES_URL')
+        os.environ.get('SUPABASE_POSTGRES_URL') or
+        os.environ.get('POSTGRES_URL')
     )
     
     if database_url:

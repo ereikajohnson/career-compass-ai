@@ -13,8 +13,13 @@ def create_app(test_config=None):
     basedir = os.path.abspath(os.path.dirname(__file__))
     db_path = os.path.join(basedir, 'instance', 'database.db')
     
-    # Vercel adds POSTGRES_URL or DATABASE_URL depending on the provider
-    database_url = os.environ.get('POSTGRES_URL') or os.environ.get('DATABASE_URL')
+    # Vercel adds multiple possible variables depending on the integration type
+    database_url = (
+        os.environ.get('POSTGRES_URL') or 
+        os.environ.get('POSTGRES_URL_NON_POOLING') or 
+        os.environ.get('DATABASE_URL') or
+        os.environ.get('SUPABASE_POSTGRES_URL')
+    )
     
     if database_url:
         # Flask-SQLAlchemy requires postgresql:// instead of postgres://
@@ -60,8 +65,21 @@ def create_app(test_config=None):
     with app.app_context():
         try:
             db.create_all()
+            
+            # Automatically seed if Cloud DB is empty
+            from careercompass.models.job import Job
+            if Job.query.count() == 0:
+                print("Seeding database...")
+                sample_jobs = [
+                    Job(title="React Frontend Developer", company="TechVision", tech_skills="React, JavaScript, CSS", soft_skills="Teamwork", min_qualification="Bachelor's", description="Build UI.", industry="Software", availability="Remote", salary_package="₹8 - ₹12 LPA"),
+                    Job(title="Python Analyst", company="DataFlow", tech_skills="Python, SQL, Pandas", soft_skills="Logic", min_qualification="Analytical", description="Data insights.", industry="Data", availability="Full-time", salary_package="₹7 - ₹11 LPA"),
+                    Job(title="Full Stack Cloud Dev", company="Innovate", tech_skills="Python, React, AWS", soft_skills="Multi-tasking", min_qualification="Dev experience", description="End-to-end dev.", industry="Web", availability="Hybrid", salary_package="₹12 - ₹18 LPA")
+                ]
+                db.session.add_all(sample_jobs)
+                db.session.commit()
+                print("Seeded successfully.")
         except Exception as e:
-            print(f"DATABASE ERROR during create_all: {e}")
+            print(f"DATABASE ERROR during create_all/seeding: {e}")
             # We don't crash the app here, just log it.
 
     return app

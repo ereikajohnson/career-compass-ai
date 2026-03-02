@@ -10,18 +10,22 @@ from . import main_bp
 
 
 def save_profile_picture(form_picture):
-    random_hex = secrets.token_hex(8)
-    _, f_ext = os.path.splitext(form_picture.filename)
-    picture_fn = random_hex + f_ext
-    
-    # Save to the actual static folder configured in the app
-    picture_path = os.path.join(current_app.static_folder, 'profile_pics', picture_fn)
-    
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(picture_path), exist_ok=True)
-    
-    form_picture.save(picture_path)
-    return picture_fn
+    try:
+        random_hex = secrets.token_hex(8)
+        _, f_ext = os.path.splitext(form_picture.filename)
+        picture_fn = random_hex + f_ext
+        
+        # Save to the actual static folder configured in the app
+        picture_path = os.path.join(current_app.static_folder, 'profile_pics', picture_fn)
+        
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(picture_path), exist_ok=True)
+        
+        form_picture.save(picture_path)
+        return picture_fn
+    except Exception as e:
+        print(f"Error saving picture (likely read-only FS): {e}")
+        return None
 
 @main_bp.route('/')
 def home():
@@ -75,7 +79,10 @@ def profile():
             file = request.files['profile_pic']
             if file and file.filename != '':
                 picture_file = save_profile_picture(file)
-                current_user.profile_pic = picture_file
+                if picture_file:
+                    current_user.profile_pic = picture_file
+                else:
+                    flash('Warning: Could not save profile picture. This environment is read-only.', 'warning')
 
         # Username update logic
         if new_username and new_username != current_user.username:
@@ -108,8 +115,14 @@ def profile():
         current_user.qualification = qualification
         current_user.industry = industry
 
-        db.session.commit()
-        flash('Profile updated successfully!', 'success')
+        try:
+            db.session.commit()
+            flash('Profile updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print(f"Database commit failed: {e}")
+            flash('Error: Unable to save changes. Note: On Vercel, SQLite is read-only. Please use a cloud database for persistence.', 'danger')
+        
         return redirect(url_for('main.profile'))
 
     return render_template('profile.html')

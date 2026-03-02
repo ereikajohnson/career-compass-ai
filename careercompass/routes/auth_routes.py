@@ -22,10 +22,15 @@ def register():
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         user = User(username=username, password=hashed_password)
         db.session.add(user)
-        db.session.commit()
-        
-        flash('Account created! You are now able to log in', 'success')
-        return redirect(url_for('auth.login'))
+        try:
+            db.session.commit()
+            flash('Account created! You are now able to log in', 'success')
+            return redirect(url_for('auth.login'))
+        except Exception as e:
+            db.session.rollback()
+            print(f"Registration failed: {e}")
+            flash('Error: Could not create account. Note: SQLite is read-only on Vercel. Use a cloud database for persistence.', 'danger')
+            return redirect(url_for('auth.register'))
         
     return render_template('register.html')
 

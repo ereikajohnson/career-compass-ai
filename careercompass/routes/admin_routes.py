@@ -38,8 +38,14 @@ def add_job():
     )
     
     db.session.add(new_job)
-    db.session.commit()
-    flash('New job added successfully.', 'success')
+    try:
+        db.session.commit()
+        flash('New job added successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        print(f"Adding job failed: {e}")
+        flash('Error: Could not add job. Note: SQLite is read-only on Vercel.', 'danger')
+    
     return redirect(url_for('admin.admin_dashboard'))
 
 @admin_bp.route('/job/delete/<int:job_id>', methods=['POST'])
@@ -47,8 +53,14 @@ def add_job():
 def delete_job(job_id):
     job = Job.query.get_or_404(job_id)
     db.session.delete(job)
-    db.session.commit()
-    flash('Job deleted successfully.', 'success')
+    try:
+        db.session.commit()
+        flash('Job deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        print(f"Deleting job failed: {e}")
+        flash('Error: Could not delete job. Note: SQLite is read-only on Vercel.', 'danger')
+    
     return redirect(url_for('admin.admin_dashboard'))
 
 @admin_bp.route('/job/edit/<int:job_id>', methods=['POST'])
@@ -66,6 +78,12 @@ def edit_job(job_id):
     job.availability = request.form.get('availability')
     job.salary_package = request.form.get('salary_package')
     
-    db.session.commit()
-    flash('Job updated successfully.', 'success')
+    try:
+        db.session.commit()
+        flash('Job updated successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        print(f"Updating job failed: {e}")
+        flash('Error: Could not update job. Note: SQLite is read-only on Vercel.', 'danger')
+    
     return redirect(url_for('admin.admin_dashboard'))

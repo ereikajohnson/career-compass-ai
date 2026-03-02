@@ -71,6 +71,16 @@
 
 
     <div class="container mt-3">
+        {% if is_vercel and db_type == 'sqlite' %}
+        <div class="alert alert-warning shadow-sm border-warning" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Cloud Connection Missing:</strong> You are live on Vercel, but no cloud database is connected yet.
+            All data will be <strong>temporary</strong> and you cannot save profile changes.
+            Please connect <a href="https://vercel.com/docs/storage/vercel-postgres" class="alert-link">Vercel
+                Postgres</a> now.
+        </div>
+        {% endif %}
+
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}

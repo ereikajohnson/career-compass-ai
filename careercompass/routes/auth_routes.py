@@ -29,7 +29,7 @@ def register():
         except Exception as e:
             db.session.rollback()
             print(f"Registration failed: {e}")
-            flash('Error: Could not create account. Note: SQLite is read-only on Vercel. Use a cloud database for persistence.', 'danger')
+            flash(f'Registration Error: {str(e)}', 'danger')
             return redirect(url_for('auth.register'))
         
     return render_template('register.html')

@@ -44,7 +44,7 @@ def add_job():
     except Exception as e:
         db.session.rollback()
         print(f"Adding job failed: {e}")
-        flash('Error: Could not add job. Note: SQLite is read-only on Vercel.', 'danger')
+        flash(f'Error: Could not add job. {str(e)}', 'danger')
     
     return redirect(url_for('admin.admin_dashboard'))
 
@@ -59,7 +59,7 @@ def delete_job(job_id):
     except Exception as e:
         db.session.rollback()
         print(f"Deleting job failed: {e}")
-        flash('Error: Could not delete job. Note: SQLite is read-only on Vercel.', 'danger')
+        flash(f'Error: Could not delete job. {str(e)}', 'danger')
     
     return redirect(url_for('admin.admin_dashboard'))
 
@@ -84,6 +84,6 @@ def edit_job(job_id):
     except Exception as e:
         db.session.rollback()
         print(f"Updating job failed: {e}")
-        flash('Error: Could not update job. Note: SQLite is read-only on Vercel.', 'danger')
+        flash(f'Error: Could not update job. {str(e)}', 'danger')
     
     return redirect(url_for('admin.admin_dashboard'))

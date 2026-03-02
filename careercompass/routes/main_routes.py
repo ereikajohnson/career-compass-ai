@@ -121,7 +121,7 @@ def profile():
         except Exception as e:
             db.session.rollback()
             print(f"Database commit failed: {e}")
-            flash('Error: Unable to save changes. Note: On Vercel, SQLite is read-only. Please use a cloud database for persistence.', 'danger')
+            flash(f'Error: Unable to save changes. {str(e)}', 'danger')
         
         return redirect(url_for('main.profile'))
 

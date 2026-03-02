@@ -21,8 +21,10 @@ def create_app(test_config=None):
         if database_url.startswith("postgres://"):
             database_url = database_url.replace("postgres://", "postgresql://", 1)
         app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+        app.config['DB_TYPE'] = 'postgresql'
     else:
         app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+        app.config['DB_TYPE'] = 'sqlite'
         
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -49,11 +51,18 @@ def create_app(test_config=None):
         from careercompass.models.user import User
         return User.query.get(int(user_id))
 
+    @app.context_processor
+    def inject_db_status():
+        is_vercel = os.environ.get('VERCEL') == '1'
+        db_type = app.config.get('DB_TYPE')
+        return dict(is_vercel=is_vercel, db_type=db_type)
+
     with app.app_context():
         try:
             db.create_all()
         except Exception as e:
-            print(f"Database setup skipped or failed: {e}")
+            print(f"DATABASE ERROR during create_all: {e}")
+            # We don't crash the app here, just log it.
 
     return app
 
